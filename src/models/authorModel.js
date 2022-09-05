@@ -1,6 +1,6 @@
 const mongoose=require('mongoose')
 
-const autherSchema= new mongoose.Schema({
+const authorSchema= new mongoose.Schema({
     fname: {type:String ,required:true},
     lname: {type:String ,required:true}, 
     title: {type:String ,required:true, enum:["Mr", "Mrs", "Miss"]}, 
@@ -8,4 +8,4 @@ const autherSchema= new mongoose.Schema({
     password: {type:String ,required:true} 
 },{timestamps:true})
 
-module.exports=mongoose.model('Author',autherSchema)
+module.exports=mongoose.model('Author',authorSchema)
