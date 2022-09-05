@@ -8,7 +8,7 @@ const createBlogs = async function (req, res) {
             res.status(400).send({ status: false, data: "Please Enter Author Id" })
         }
         else {
-            let authorId = await authorModel.findById(bodyData.authorId)
+            let authorId = await authorModel.find({_id: bodyData.authorId})
             if (authorId.length <= 0) {
                 res.status(404).send({ status: false, data: "Author ID not Found.....please Enter valid Author ID" })
             }
@@ -25,7 +25,7 @@ const createBlogs = async function (req, res) {
 
 const getBlog = async function (req, res) {
     try {
-        let getData = await blogModel.find({ isDeleted: false, isPublished: true })          //.populate("authorId")
+        let getData = await blogModel.find({ isDeleted: false, isPublished: false })          //.populate("authorId")
         if (getData.length <= 0) {
             res.status(404).send({ status: false, msg: "Data Not Found" })
         }
