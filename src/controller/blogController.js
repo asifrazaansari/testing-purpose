@@ -1,5 +1,11 @@
 const blogModel = require('../models/blogModel')
 const authorModel = require('../models/authorModel')
+const { default: mongoose } = require('mongoose')
+require('mongoose')
+const isValidObjecctId=(ObjectId)=>{
+    return mongoose.Types.ObjectId.isValid(ObjectId)
+}
+
 
 const createBlogs = async function (req, res) {
     try {
@@ -77,6 +83,51 @@ const updateBlogs = async function (req, res) {
 }
 
 
+const deleteBlog = async function (req, res) {
+    try {
+      const blogId = req.params.blogId;
+       if(!isValidObjecctId){
+        return res.status(400).send({msg:"please enter valid blogId"})
+       }
+        const checkblog = await blogModel.findById(blogId);
+        console.log(checkblog);
+        if (checkblog === null || checkblog.isDeleted == true) {
+          return res.status(400).send({ msg: "Blog already deleted" });
+        }
+        const deletedData = await blogModel.findByIdAndUpdate(blogId, {
+          $set: { isDeleted: true, deletedAt: new Date() },
+        });
+        return res.status(200).send({ msg: "Deleted 11" });
+     
+    } 
+    catch (err) {
+      return res.status(500).send({ error: err.message });
+    }
+  };
+  
+  const deleteByQuery=async function(req,res){
+      try{
+          const data1 = req.query;
+      data1.isDeleted = false;
+      data1.isPublished = true;
+      console.log(data1);
+      const deletebyquery = await blogModel.updateMany(data1, {
+        $set: { isDeleted:false, deletedAt: new Date() },
+         new: true
+      });
+      console.log(deletebyquery);
+      if (deletebyquery.modifiedCount> 0) {
+        return res.status(200).send({ msg: "Deleted" });
+      }
+      return res.status(400).send({ msg: "No match found" });
+      }
+      catch (err) {
+          return res.status(500).send({ error: err.message });
+        }
+  }
+
 module.exports.createBlogs = createBlogs
 module.exports.getBlog = getBlog
 module.exports.updateBlogs = updateBlogs
+module.exports.deleteByQuery=deleteByQuery
+module.exports.deleteBlog=deleteBlog
