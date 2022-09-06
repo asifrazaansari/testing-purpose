@@ -103,26 +103,32 @@ const deleteBlog = async function (req, res) {
     }
   };
   
-  const deleteByQuery=async function(req,res){
-      try{
-          const data1 = req.query;
-      data1.isDeleted = false;
-      data1.isPublished = true;
-      console.log(data1);
-      const deletebyquery = await blogModel.updateMany(data1, {
-        $set: { isDeleted:false, deletedAt: new Date() },
-         new: true
-      });
-      console.log(deletebyquery);
-      if (deletebyquery.modifiedCount> 0) {
-        return res.status(200).send({ msg: "Deleted" });
-      }
-      return res.status(400).send({ msg: "No match found" });
-      }
-      catch (err) {
-          return res.status(500).send({ error: err.message });
+  const deleteByQuery = async function (req, res) {
+    try {
+        const data1 = req.query;
+        if(data1.tags ||data1.authorId || data1.subcategory || data1.category || data1.isPublished){
+        data1.isDeleted = false;
+        if(isPublished== true){
+            return res.status(400).send({msg:"cannot delete published blog"})
         }
-  }
+            const deletebyquery = await blogModel.updateMany(
+             data1, 
+            { $set: { isDeleted: true, deletedAt: new Date() } },
+            {new: true},
+        );
+        if (deletebyquery.modifiedCount > 0) {
+            return res.status(200).send({ msg: "Deleted"+deletebyquery.modifiedCount+"blogs" });
+        }
+        return res.status(400).send({ msg: "No Data found" });
+       }
+     else{
+        return res.status(400).send({msg:"Invalid filters"})
+    }
+    }
+    catch (err) {
+        return res.status(500).send({ error: err.message });
+    }
+}
 
 module.exports.createBlogs = createBlogs
 module.exports.getBlog = getBlog
