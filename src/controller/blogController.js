@@ -25,7 +25,7 @@ const createBlogs = async function (req, res) {
 
 const getBlog = async function (req, res) {
     try {
-        let getData = await blogModel.find({ isDeleted: false, isPublished: false })          //.populate("authorId")
+        let getData = await blogModel.find({ isDeleted: false, isPublished: true })
         if (getData.length <= 0) {
             res.status(404).send({ status: false, msg: "Data Not Found" })
         }
@@ -35,12 +35,11 @@ const getBlog = async function (req, res) {
             let Category = req.query.category
             let Subcategory = req.query.subcategory
             if (AuthorId || Tags || Category || Subcategory) {
-                let getDataByFilter = await blogModel.find({ $or: [{ authorId: AuthorId }, { tags: Tags }, { category: Category }, { subcategory: Subcategory }] })
+                let getDataByFilter = await blogModel.find({isDeleted: false, isPublished: true, $or: [{ authorId: AuthorId }, { tags: Tags }, { category: Category }, { subcategory: Subcategory }] })
                 res.status(200).send({ status: true, data: getDataByFilter })
             }
             else {
-                let getDataByFilter = await blogModel.find().count()
-                res.status(200).send({ status: true, data: getDataByFilter })
+                res.status(200).send({ status: true, data: getData })
             }
         }
     }
