@@ -19,5 +19,5 @@ mongoose.connect(process.env.String, {
 app.use('/', route)
 
 app.listen(process.env.PORT, function () {
-    console.log('Express app running on port' + (process.env.PORT))
+    console.log('Express app running on port ' + (process.env.PORT))
 })
