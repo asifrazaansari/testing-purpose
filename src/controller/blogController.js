@@ -25,7 +25,7 @@ const createBlogs = async function (req, res) {
 
 const getBlog = async function (req, res) {
     try {
-        let getData = await blogModel.find({ isDeleted: false, isPublished: true })          //.populate("authorId")
+        let getData = await blogModel.find({ isDeleted: false, isPublished: true })
         if (getData.length <= 0) {
             res.status(404).send({ status: false, msg: "Data Not Found" })
         }
@@ -35,7 +35,7 @@ const getBlog = async function (req, res) {
             let Category = req.query.category
             let Subcategory = req.query.subcategory
             if (AuthorId || Tags || Category || Subcategory) {
-                let getDataByFilter = await blogModel.find({isDeleted: false, isPublished: true, $or: [{ authorId: AuthorId }, { tags: Tags }, { category: Category }, { subcategory: Subcategory }] })
+                let getDataByFilter = await blogModel.find({ isDeleted: false, isPublished: true, $or: [{ authorId: AuthorId }, { tags: Tags }, { category: Category }, { subcategory: Subcategory }] })
                 res.status(200).send({ status: true, data: getDataByFilter })
             }
             else {
@@ -51,21 +51,19 @@ const getBlog = async function (req, res) {
 const updateBlogs = async function (req, res) {
     try {
         let blogId = req.params.blogId
-        let Title = req.body.title
-        let Body = req.body.body
-        let Tags = req.body.tags
-        let Subcategory = req.body.subcategory
+        let data = req.body
+        console.log(data)
         let validBlogId = await blogModel.findById(blogId)
         if (validBlogId === null) {
             return res.status(404).send({ status: false, msg: "Invalid Id, Id not found " })
-        }else if(validBlogId.isDeleted === true){
-            return res.status(400).send({status: false, msg: "Id is already deleted"})
-        }else if(!(Tags && Subcategory)){
-            return res.status(400).send({status: false, msg: "Tags and Subcategory is mandatory"})
-        }else {
+        } else if (validBlogId.isDeleted === true) {
+            return res.status(400).send({ status: false, msg: "Id is already deleted" })
+        } else if (!(data.tags && data.subcategory)) {
+            return res.status(400).send({ status: false, msg: "Tags and Subcategory is mandatory" })
+        } else {
             let updateUser = await blogModel.findOneAndUpdate(
                 { "_id": blogId },
-                { "$set": { "title": Title, "body": Body }, "$push": { "tags": Tags, "subcategory": Subcategory }, isPublished: true, publishedAt: new Date() },
+                { "$set": { "title": data.title, "body": data.body }, "$push": { "tags": data.tags, "subcategory": data.subcategory }, isPublished: true, publishedAt: new Date() },
                 { new: true }
             )
             res.status(200).send({ status: true, data: updateUser })
