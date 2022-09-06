@@ -8,7 +8,7 @@ const createBlogs = async function (req, res) {
             res.status(400).send({ status: false, data: "Please Enter Author Id" })
         }
         else {
-            let authorId = await authorModel.find({_id: bodyData.authorId})
+            let authorId = await authorModel.find({ _id: bodyData.authorId })
             if (authorId.length <= 0) {
                 res.status(404).send({ status: false, data: "Author ID not Found.....please Enter valid Author ID" })
             }
@@ -25,7 +25,7 @@ const createBlogs = async function (req, res) {
 
 const getBlog = async function (req, res) {
     try {
-        let getData = await blogModel.find({ isDeleted: false, isPublished: true })
+        let getData = await blogModel.find({ isDeleted: false, isPublished: true })          //.populate("authorId")
         if (getData.length <= 0) {
             res.status(404).send({ status: false, msg: "Data Not Found" })
         }
@@ -48,5 +48,35 @@ const getBlog = async function (req, res) {
     }
 }
 
+const updateBlogs = async function (req, res) {
+    try {
+        let blogId = req.params.blogId
+        let Title = req.body.title
+        let Body = req.body.body
+        let Tags = req.body.tags
+        let Subcategory = req.body.subcategory
+        let validBlogId = await blogModel.findById(blogId)
+        if (validBlogId === null) {
+            return res.status(404).send({ status: false, msg: "Invalid Id, Id not found " })
+        }else if(validBlogId.isDeleted === true){
+            return res.status(400).send({status: false, msg: "Id is already deleted"})
+        }else if(!(Tags && Subcategory)){
+            return res.status(400).send({status: false, msg: "Tags and Subcategory is mandatory"})
+        }else {
+            let updateUser = await blogModel.findOneAndUpdate(
+                { "_id": blogId },
+                { "$set": { "title": Title, "body": Body }, "$push": { "tags": Tags, "subcategory": Subcategory }, isPublished: true, publishedAt: new Date() },
+                { new: true }
+            )
+            res.status(200).send({ status: true, data: updateUser })
+        }
+
+    } catch (error) {
+        res.status(500).send({ status: false, error: error.message })
+    }
+}
+
+
 module.exports.createBlogs = createBlogs
 module.exports.getBlog = getBlog
+module.exports.updateBlogs = updateBlogs
