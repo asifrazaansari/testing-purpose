@@ -25,7 +25,7 @@ const createBlogs = async function (req, res) {
         }
     }
     catch (err) {
-        res.status(400).send({ status: false, error: err.message })
+        res.status(500).send({ status: false, error: err.message })
     }
 }
 
@@ -36,17 +36,14 @@ const getBlog = async function (req, res) {
             res.status(404).send({ status: false, msg: "Data Not Found" })
         }
         else {
-            let AuthorId = req.query.authorId
-            let Tags = req.query.tags
-            let Category = req.query.category
-            let Subcategory = req.query.subcategory
-            if (AuthorId || Tags || Category || Subcategory) {
-                let getDataByFilter = await blogModel.find({ isDeleted: false, isPublished: true, $or: [{ authorId: AuthorId }, { tags: Tags }, { category: Category }, { subcategory: Subcategory }] })
+            let bodyData = req.query
+            if (bodyData.authorId || bodyData.tags || bodyData.category || bodyData.subcategory) {
+                let getDataByFilter = await blogModel.find({ isDeleted: false, isPublished: true, $or: [{ authorId: bodyData.authorId }, { tags: bodyData.tags }, { category: bodyData.category }, { subcategory: bodyData.subcategory }] })
                 res.status(200).send({ status: true, data: getDataByFilter })
             }
             else {
                 res.status(200).send({ status: true, data: getData })
-            }
+            } 
         }
     }
     catch (err) {
