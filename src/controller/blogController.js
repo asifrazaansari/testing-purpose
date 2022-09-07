@@ -103,6 +103,12 @@ const deleteByQuery = async function (req, res) {
         if (Object.keys(data).length === 0) {
             return res.status(404).send({ status: false, msg: "Please enter a filter to delete" })
         }
+        // if((data.category || data.subcategory || data.tags || data.authorId) && Object.keys(data).length !== 0){
+        //     return res.status(400).send({ status: false, msg: "Please enter a valid filter to delete" })
+        // }
+        if (!(data.category || data.subcategory || data.tags || data.authorId)) {
+            return res.status(404).send({ status: false, msg: "This filter can't be deleted" })
+        }
         const deleteByQuery = await blogModel.updateMany({
             $and: [data, { isDeleted: false }, { isPublished: false }]
 
