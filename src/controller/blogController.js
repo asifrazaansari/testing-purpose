@@ -56,12 +56,10 @@ const updateBlogs = async function (req, res) {
             return res.status(404).send({ status: false, msg: "Invalid Id, Id not found " })
         } else if (validBlogId.isDeleted === true) {
             return res.status(400).send({ status: false, msg: "Id is already deleted" })
-        } else if (!(data.tags && data.subcategory)) {
-            return res.status(400).send({ status: false, msg: "Tags and Subcategory is mandatory" })
         } else {
             let updateUser = await blogModel.findOneAndUpdate(
                 { "_id": blogId },
-                { "$set": { "title": data.title, "body": data.body }, "$push": { "tags": data.tags, "subcategory": data.subcategory }, isPublished: true, publishedAt: new Date() },
+                { "$set": { "title": data.title, "body": data.body }, "$addToSet": { "tags": data.tags, "subcategory": data.subcategory }, isPublished: true, publishedAt: new Date() },
                 { new: true }
             )
             res.status(200).send({ status: true, data: updateUser })
