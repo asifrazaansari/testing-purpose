@@ -16,14 +16,19 @@ const stringChecking = function (data) {
 
 const createAuthor = async function (req, res) {
     try {
-        let data = req.body
+        let data = req.body 
+        
         if(Object.keys(data).length==0) return res.status(400).send({ msg: "Please Enter Required Data", status: false })
         
        const {fname, lname, title, email, password} = data
-       if(!stringChecking(fname) || !stringChecking(lname)) return res.status(404).send({ status: false, msg: "fname and lname must be present and have Non empty string " })  
+
+        if(!stringChecking(fname)) return res.status(400).send({ status: false, msg: "fname must be present and have Non empty string " })  
+
+        if(!stringChecking(lname)) return res.status(400).send({ status: false, msg: "lname must be present and have Non empty string " })  
+       
         if (!isvalidEmail.test(email)) return res.status(400).send({ msg: "please enter non empty valid email", status: false })
         
-        if(title!=="Mr" && title!=="Mrs" && title!=="Miss") return res.status(400).send({status:false,msg:"title should be present and Values Mr,Mrs and Miss only"})
+        if(title!=="Mr" && title!=="Mrs" && title!=="Miss") return res.status(400).send({status:false,msg:"title should be present and have value  Mr or Mrs or Miss only"})
         
         const duplicateEmail = await authorModel.findOne({email:email})
         if(duplicateEmail) return res.status(400).send({status:"false",msg:"email Id already register ,use another email"})
@@ -48,7 +53,7 @@ const loginUser = async function (req, res) {
         }
         if (!isvalidEmail.test(emailId)) return res.status(400).send({ msg: "please enter non empty valid email", status: false })
         if (!isValidPassword.test(password)) {
-            return res.status(400).send({ msg: "password is not correct, At least a symbol, upper and lower case letters and a number with min 6 and max 16 letters", status: false })
+            return res.status(400).send({  status: false ,msg: "password is not correct, it contain at least a symbol, upper and lower case letters and a number with min 6 and max 16 letters" })
         }
 
         const author = await authorModel.findOne({ email: emailId, password: password })
@@ -61,7 +66,7 @@ const loginUser = async function (req, res) {
                 Organisation: "FunctionUp",
             }, "Group66-Project-Blog");
             res.setHeader("x-api-key", token);
-            res.status(200).send({ status: true, data: token })
+            res.status(201).send({ status: true, data: token })
         }
     } catch (error) {
         res.status(500).send({ status: false, error: error.message })

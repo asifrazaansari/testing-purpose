@@ -39,16 +39,16 @@ const createBlogs = async function (req, res) {
             if (!isValidObjectId(authorId)) {
                 return res.status(400).send({ msg: "please enter valid authorId" })
             }
-            if(!stringChecking(title) || !stringChecking(body)) return res.status(404).send({ status: false, msg: "title and body must be present and have Non empty string " }) 
+            if(!stringChecking(title) || !stringChecking(body)) return res.status(400).send({ status: false, msg: "title and body must be present and have Non empty string " }) 
 
                     
-            if(!arrayOfStringChecking(category) ) return res.status(404).send({ status: false, msg: "category must be present and have Non empty string " }) 
+            if(!arrayOfStringChecking(category) ) return res.status(400).send({ status: false, msg: "category must be present and have Non empty string " }) 
 
             if(subcategory){
-                if(!arrayOfStringChecking(subcategory) ) return res.status(404).send({ status: false, msg: "subcategory must be present and have Non empty string " }) 
+                if(!arrayOfStringChecking(subcategory) ) return res.status(400).send({ status: false, msg: "subcategory must be present and have Non empty string " }) 
             }
             if( tags){
-                if( !arrayOfStringChecking(tags) ) return res.status(404).send({ status: false, msg: "tags must be present and have Non empty string " }) 
+                if( !arrayOfStringChecking(tags) ) return res.status(400).send({ status: false, msg: "tags must be present and have Non empty string " }) 
             }
 
             let checkauthorId = await authorModel.findById(authorId )
@@ -87,15 +87,15 @@ const getBlog = async function (req, res) {
             let {subcategory,category,tags,authorId}=bodyData
             let filter={}
             if(subcategory){
-                if(!arrayOfStringChecking(subcategory) ) return res.status(404).send({ status: false, msg: "subcategory must be present and have Non empty string " })
+                if(!arrayOfStringChecking(subcategory) ) return res.status(400).send({ status: false, msg: "subcategory must be present and have Non empty string " })
                 filter.subcategory= subcategory
             }
             if( tags){
-                if( !arrayOfStringChecking(tags) ) return res.status(404).send({ status: false, msg: "tags must be present and have Non empty string " }) 
+                if( !arrayOfStringChecking(tags) ) return res.status(400).send({ status: false, msg: "tags must be present and have Non empty string " }) 
                 filter.tags=tags
             }
             if( category){
-                if( !arrayOfStringChecking(tags) ) return res.status(404).send({ status: false, msg: "tags must be present and have Non empty string " }) 
+                if( !arrayOfStringChecking(tags) ) return res.status(400).send({ status: false, msg: "tags must be present and have Non empty string " }) 
                 filter.category=category
             }
             if(authorId){
@@ -123,26 +123,29 @@ const updateBlogs = async function (req, res) {
         let blogId = req.params.blogId
         let data = req.body
         let {subcategory,tags,body,title}=data
+        if(Object.keys(data).length===0){
+            return res.status(400).send({status:false,msg:"Please enter required details in request body"})
+        }
         if(subcategory){
-            if(!arrayOfStringChecking(subcategory) ) return res.status(404).send({ status: false, msg: "subcategory must  have Non empty string " }) 
+            if(!arrayOfStringChecking(subcategory) ) return res.status(400).send({ status: false, msg: "subcategory must  have Non empty string " }) 
         }
         if( tags){
-            if( !arrayOfStringChecking(tags) ) return res.status(404).send({ status: false, msg: "tags must have Non empty string " }) 
+            if( !arrayOfStringChecking(tags) ) return res.status(400).send({ status: false, msg: "tags must have Non empty string " }) 
         }
 
         if(title){
-              if(!stringChecking(title)) return res.status(404).send({ status: false, msg: "title must be Non empty string " })
+              if(!stringChecking(title)) return res.status(400).send({ status: false, msg: "title must be Non empty string " })
         } 
 
         if(body){
-              if(!stringChecking(body)) return res.status(404).send({ status: false, msg: "body must have Non empty string " }) 
+              if(!stringChecking(body)) return res.status(400).send({ status: false, msg: "body must have Non empty string " }) 
         }
 
         let validBlogId = await blogModel.findById(blogId)
         if (validBlogId === null) {
             return res.status(404).send({ status: false, msg: "Invalid blogId, Id not found " })
         } else if (validBlogId.isDeleted === true) {
-            return res.status(400).send({ status: false, msg: "Id is already deleted" })
+            return res.status(400).send({ status: false, msg: " Blog is already deleted" })
         } else {
             let updateUser = await blogModel.findOneAndUpdate(
                 { "_id": blogId },
@@ -165,7 +168,7 @@ const deleteBlog = async function (req, res) {
         
         const checkblog = await blogModel.findById(blogId);
         if (checkblog === null || checkblog.isDeleted == true) {
-            return res.status(404).send({ msg: "Blog already deleted" });
+            return res.status(400).send({ msg: "Blog already deleted" });
         } else {
             await blogModel.findByIdAndUpdate(blogId, {
                 $set: { isDeleted: true, deletedAt: new Date() },
@@ -190,45 +193,41 @@ const deleteByQuery = async function (req, res) {
         const {category,subcategory,tags,authorId}=data
         const filter={}
         if(subcategory){
-            if(!arrayOfStringChecking(subcategory) ) return res.status(404).send({ status: false, msg: "subcategory must be present and have Non empty string " })
+            if(!arrayOfStringChecking(subcategory) ) return res.status(400).send({ status: false, msg: "subcategory must be present and have Non empty string " })
             filter.subcategory= subcategory
         }
         if( tags){
-            if( !arrayOfStringChecking(tags) ) return res.status(404).send({ status: false, msg: "tags must be present and have Non empty string " }) 
+            if( !arrayOfStringChecking(tags) ) return res.status(400).send({ status: false, msg: "tags must be present and have Non empty string " }) 
             filter.tags=tags
         }
         if( category){
-            if( !arrayOfStringChecking(tags) ) return res.status(404).send({ status: false, msg: "tags must be present and have Non empty string " }) 
+            if( !arrayOfStringChecking(tags) ) return res.status(400).send({ status: false, msg: "tags must be present and have Non empty string " }) 
             filter.category=category
         }
         if(authorId){
             if (!isValidObjectId(authorId))  return res.status(400).send({ status: false,msg: "please enter valid authorId" })
-            // if(authorId!==tokenAuthorId){
-            //     return res.status(403).send({status:false,msg:"Person is not authorised"})
-            // }
-            
+            if(authorId!==tokenAuthorId){
+                return res.status(403).send({status:false,msg:"Person is not authorised"})
             }
+        }
         filter.isDeleted=false
         filter.isPublished=false
-        // filter.authorId=tokenAuthorId
-        console.log(filter)
         const blog = await blogModel.find(filter)
         for(let i=0;i<blog.length;i++){
-        if(blog[i].authorId==tokenAuthorId){
+        if(((blog[i].authorId.toString()))!==tokenAuthorId){
+            return res.status(403).send({status:false ,msg:"The blogs with this filters are forbidden for this logged in user"})  
+        }
+        }
             const deleteByQuery = await blogModel.updateMany(
-                {},
+                filter,
                 { $set: { isDeleted: true, deletedAt: new Date() } }
             )
             if (deleteByQuery.modifiedCount === 0) {
-                return res.status(400).send({ status: false, msg: "No data found" })
+                return res.status(404).send({ status: false, msg: "No data found" })
             }
           return  res.status(200).send({ status: true, msg: "deleted" })
-        }
-        //blog not found 
-        if (blog.length == 0) {
-          return res.status(404).send({ status: false, message: "Blog does not exist" })
-        }
-    } 
+        
+    
   } catch (error) {
         return res.status(500).send({ error: error.message });
     }
