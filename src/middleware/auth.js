@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken")
 const blogModel = require('../models/blogModel')
-const mongoose=require('mongoose')
+const mongoose = require('mongoose')
 const isValidObjectId = (ObjectId) => {
     return mongoose.Types.ObjectId.isValid(ObjectId)
 }
@@ -31,16 +31,15 @@ const authorization = async function (req, res, next) {
     try {
         let decoded = req.decodedToken
         let paramsBlogId = req.params.blogId
-        if (!isValidObjectId(paramsBlogId))  return res.status(400).send({ status: false,msg: "please enter valid blogId" })
+        if (!isValidObjectId(paramsBlogId)) return res.status(400).send({ status: false, msg: "please enter valid blogId" })
         let userLoggedIn = decoded.authorId
         let blog = await blogModel.findById(paramsBlogId)
-        if(!blog){
-            return res.status(404).send({status: false, msg: "Blog not Found"})
+        if (!blog) {
+            return res.status(404).send({ status: false, msg: "Blog not Found" })
         }
         const blogAuthorId = (blog.authorId).toString()
-        if(blogAuthorId !== userLoggedIn)
-        {
-            return res.status(403).send({status: false, msg: "You are not authorised Person"})
+        if (blogAuthorId !== userLoggedIn) {
+            return res.status(403).send({ status: false, msg: "You are not authorised Person" })
         }
         next()
     }
