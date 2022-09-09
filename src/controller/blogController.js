@@ -95,7 +95,7 @@ const getBlog = async function (req, res) {
                 filter.tags = tags
             }
             if (category) {
-                if (!arrayOfStringChecking(tags)) return res.status(400).send({ status: false, msg: "tags must be present and have Non empty string " })
+                if (!arrayOfStringChecking(category)) return res.status(400).send({ status: false, msg: "tags must be present and have Non empty string " })
                 filter.category = category
             }
             if (authorId) {
@@ -201,7 +201,7 @@ const deleteByQuery = async function (req, res) {
             filter.tags = tags
         }
         if (category) {
-            if (!arrayOfStringChecking(tags)) return res.status(400).send({ status: false, msg: "tags must be present and have Non empty string " })
+            if (!arrayOfStringChecking(category)) return res.status(400).send({ status: false, msg: "tags must be present and have Non empty string " })
             filter.category = category
         }
         if (authorId) {
