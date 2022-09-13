@@ -6,7 +6,7 @@ const isValidPassword = new RegExp(/^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-
 const stringChecking = function (data) {
     if (typeof data !== 'string') {
         return false;
-    } else if (typeof data === 'string' && data.trim().length == 0) {
+    } else if (typeof data === 'string' && data.trim().length === 0) {
         return false;
     } else {
         return true;
@@ -18,7 +18,7 @@ const createAuthor = async function (req, res) {
     try {
         let data = req.body
 
-        if (Object.keys(data).length == 0) return res.status(400).send({ status: false, msg: "Please Enter Required Data" })
+        if (Object.keys(data).length === 0) return res.status(400).send({ status: false, msg: "Please enter data to create Author" })
 
         const { fname, lname, title, email, password } = data
 
@@ -28,7 +28,7 @@ const createAuthor = async function (req, res) {
 
         if (!isvalidEmail.test(email)) return res.status(400).send({ status: false, msg: "please enter non empty valid email" })
 
-        if (title !== "Mr" && title !== "Mrs" && title !== "Miss") return res.status(400).send({ status: false, msg: "title should be present and have value  Mr, Mrs or Miss only" })
+        if (title !== "Mr" && title !== "Mrs" && title !== "Miss") return res.status(400).send({ status: false, msg: "title should be present and have value  Mr, Mrs and Miss only" })
 
         const duplicateEmail = await authorModel.findOne({ email: email })
         if (duplicateEmail) return res.status(400).send({ status: false, msg: "email Id already register ,use another email" })
@@ -74,5 +74,4 @@ const loginUser = async function (req, res) {
 
 }
 
-module.exports.createAuthor = createAuthor
-module.exports.loginUser = loginUser
+module.exports = { createAuthor, loginUser }
