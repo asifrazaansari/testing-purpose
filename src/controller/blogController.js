@@ -205,16 +205,17 @@ const deleteByQuery = async function (req, res) {
             }
             filter.authorId = authorId
         }
-        filter.isDeleted = false
-        filter.isPublished = false
-        if (subcategory || category || tags || authorId) {
-            const blog = await blogModel.find(filter)
-            console.log(blog)
-            if(blog.length === 0) return res.status(403).send({ status: false, msg: "Blog not found" })
+       
+        if (!subcategory && !category && !tags && !authorId) {
+            return res.status(400).send({ status: false, msg: "filters can be subcategory, category, tags, authorId only " })
+        } else {
+            const blog = await blogModel.find(filter).select({ authorId: 1, _id: 0 })
+            if (blog.length === 0) return res.status(404).send({ status: false, msg: "Blog not found" })
             for (let i = 0; i < blog.length; i++) {
-                let blogAuthorId = blog[i].authorId.toString()
-                if (blogAuthorId === tokenAuthorId) {
-                    filter.authorId = blogAuthorId
+                if (blog[i].authorId.toString() === tokenAuthorId) {
+                    filter.authorId = blog[i].authorId
+                    filter.isDeleted = false
+                    filter.isPublished = false
                     const deleteByQuery = await blogModel.updateMany(
                         filter,
                         { $set: { isDeleted: true, deletedAt: new Date() } }
@@ -225,8 +226,7 @@ const deleteByQuery = async function (req, res) {
                     return res.status(200).send({ status: true, msg: "deleted" })
                 }
             }
-        } else {
-            return res.status(400).send({ status: false, msg: "filters can be subcategory, category, tags, authorId only " })
+            return res.status(403).send({status: false, message: "You are not an authorised person"})
         }
     } catch (error) {
         return res.status(500).send({ status: false, error: error.message });
