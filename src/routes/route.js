@@ -18,4 +18,8 @@ router.delete('/blogs', middleware.authentication, blogController.deleteByQuery)
 
 router.post('/login', authorController.loginUser)
 
+router.all('/*', async function (req, res) {
+    return res.status(400).send({ status: false, message: "Page not found" })
+})
+
 module.exports = router;
